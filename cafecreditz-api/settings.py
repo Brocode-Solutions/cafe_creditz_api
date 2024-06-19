@@ -143,9 +143,7 @@ else:
         }
     }
 
-print("DB_NAME:", env('DB_NAME'))
-print("DB_USER:", env('DB_USER'))
-print("DB_PASSWORD:", env('DB_PASSWORD'))
+
 
 
 # Password validation
