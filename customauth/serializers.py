@@ -167,3 +167,31 @@ class UserSerializer(serializers.ModelSerializer):
         elif hasattr(obj, 'customer'):
             return 'Customer'
         return 'User'
+    
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password']
+
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        return user
+
+class OwnerRegistrationSerializer(serializers.ModelSerializer):
+    user = UserRegistrationSerializer()
+
+    class Meta:
+        model = Owner
+        fields = ['user', 'phone_number', 'address', 'date_of_birth', 'designation']
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user = UserRegistrationSerializer.create(UserRegistrationSerializer(), validated_data=user_data)
+        owner = Owner.objects.create(user=user, **validated_data)
+        return owner

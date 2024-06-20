@@ -4,6 +4,11 @@ from knox.models import AuthToken
 from django.contrib.auth import logout as auth_logout
 from django.contrib.auth import get_user_model
 from .serializers import LoginSerializer, UserSerializer
+from owner.models import Owner
+from .serializers import OwnerSerializer
+from rest_framework.decorators import api_view
+from .serializers import OwnerRegistrationSerializer
+
 
 User = get_user_model()
 
@@ -48,3 +53,15 @@ class UserApi(generics.RetrieveAPIView):
 
     def get_object(self):
         return self.request.user
+    
+
+@api_view(['POST'])
+def register_owner(request):
+    if request.method == 'POST':
+        serializer = OwnerRegistrationSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
