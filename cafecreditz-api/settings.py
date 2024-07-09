@@ -102,6 +102,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'cafecreditz-api.custom_middleware.CafeMiddleware',  
+
 ]
 
 ROOT_URLCONF = 'cafecreditz-api.urls'

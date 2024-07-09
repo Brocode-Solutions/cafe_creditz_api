@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Customer
 from .serializers import CustomerSerializer
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.exceptions import PermissionDenied
+
 
 
 class StandardResultsSetPagination(PageNumberPagination):
@@ -19,9 +21,24 @@ class CustomerViewSet(viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
 
     def create(self, request, *args, **kwargs):
+        print(request.data)
+        print(request.data['user'])
+        user_type=request.get_user_type()
+        print(user_type)
+        if user_type !='Staff':
+            return Response({"detail": "Only staff can create customers"}, status=status.HTTP_403_FORBIDDEN)       
+        cafe_id = request.get_cafe()
+        if cafe_id is None:
+             return Response({"message": "Cafe  not found in request."}, status=status.HTTP_400_BAD_REQUEST)
+        user_data = request.data.pop('user')
+
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        # Pass user data and cafe_id to the serializer
+        serializer.save(user=user_data, cafe_id=cafe_id)       
+        print("serializer")
+        print(serializer.data)
         headers = self.get_success_headers(serializer.data)
         return Response(
             serializer.data,
