@@ -28,3 +28,14 @@ class CustomerSerializer(serializers.ModelSerializer):
         response['last_name'] = instance.user.last_name if instance.user else None
         response['email'] = instance.user.email if instance.user else None
         return response
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user, created = User.objects.get_or_create(**user_data)
+        customer = Customer.objects.create(user=user, **validated_data)
+        return customer
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', None)
+        if user_data:
+            User.objects.filter(id=instance.user.id).update(**user_data)
+        return super().update(instance, validated_data)
